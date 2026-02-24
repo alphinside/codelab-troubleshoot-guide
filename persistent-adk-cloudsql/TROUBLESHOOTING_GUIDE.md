@@ -96,16 +96,22 @@ The most common issues across all steps. **Check these first** before diving int
 > cloud-sql-proxy ${GOOGLE_CLOUD_PROJECT}:${REGION}:cafe-concierge-db --port 5432 &
 > ```
 
-### 6. Proxy restart command has wrong syntax (Step 8 bug)
+### 6. Chat in ADK Dev UI doesn't respond anything after connecting with Database
 
-> **Symptom:** Running the proxy check/restart snippet from Step 8 results in `ERROR: invalid instance connection name` because the connection string looks like `your-project:cafe-concierge-db` (missing region).
->
-> **Cause:** The codelab's proxy restart snippet in Step 8 contains a typo: `{$REGION}` instead of `${REGION}`. The curly braces are in the wrong position, causing the variable to not expand correctly.
->
-> **Fix:** Use this corrected command instead:
-> ```bash
-> cloud-sql-proxy ${GOOGLE_CLOUD_PROJECT}:${REGION}:cafe-concierge-db --port 5432 &
+> **Symptom:** input chat in the Dev UI chatbox and no respond displayed. In the log shows error 
+> ```console
+> <class 'asyncpg.exceptions.UndefinedTableError'>: relation "sessions" does not exist
+> [SQL: SELECT sessions.app_name, sessions.user_id, sessions.id, sessions.state, sessions.create_time, sessions.update_time 
+> FROM sessions 
+> WHERE sessions.app_name = $1::VARCHAR AND sessions.user_id = $2::VARCHAR]
+> [parameters: ('cafe_concierge', 'user')]
+> (Background on this error at: https://sqlalche.me/e/20/f405)
 > ```
+> **Cause:** Database initialization (especially `session` creation) when running `adk web` command is not finished yet. Take longer time due to proxy
+>
+> **Fix:** Wait for a while, until `session` ID is displayed in the ADK Dev UI
+> 
+> 
 
 ### 7. Vertex AI API errors when running the agent
 
